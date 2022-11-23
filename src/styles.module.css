@@ -1,0 +1,47 @@
+/* add css module styles here (optional) */
+
+.test {
+  margin: 2em;
+  padding: 0.5em;
+  border: 2px solid #000;
+  font-size: 2em;
+  text-align: center;
+}
+
+
+.custom_select_container {
+  border: 1px solid black;
+  border-radius: 4px;
+  min-height: 32px;
+  position: relative;
+ 
+}
+.custom_select_container > input {
+  background-color: transparent;
+  border: none;
+  box-shadow: none;
+  outline: none;
+  height: 32px;
+  width: 100%;
+  padding: 0px 10px;
+}
+
+.custom_select_container .custom_select_modal {
+  position: absolute;
+  top: 33px;
+  background-color: white;
+  box-shadow: 0px 0px 3px 0px #00000029;
+  left: 0;
+  min-width: 100%;
+}
+
+.custom_select_modal_item {
+  padding: 5px 10px;
+  cursor: pointer;
+}
+
+.custom_select_input{
+  padding-left: 25px;
+  background: url("https://static.thenounproject.com/png/101791-200.png") no-repeat left;
+  background-size: 20px;
+}
