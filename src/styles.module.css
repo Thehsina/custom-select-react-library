@@ -14,7 +14,7 @@
   border-radius: 4px;
   min-height: 32px;
   position: relative;
- 
+  display: flex;
 }
 .custom_select_container > input {
   background-color: transparent;
@@ -26,6 +26,26 @@
   padding: 0px 10px;
 }
 
+.custom_select_clear {
+  position: absolute;
+  top: 4px;
+  right: 35px;
+  cursor: pointer;
+  display: inline-block;
+}
+
+.custom_select_container > button {
+  background-color: transparent;
+  border: none;
+  box-shadow: none;
+  outline: none;
+  height: 32px;
+  width: 100%;
+  padding: 0px 10px;
+  display: flex;
+  align-items: center;
+}
+
 .custom_select_container .custom_select_modal {
   position: absolute;
   top: 33px;
@@ -33,15 +53,25 @@
   box-shadow: 0px 0px 3px 0px #00000029;
   left: 0;
   min-width: 100%;
+  border: 1px solid #00000029;
 }
 
 .custom_select_modal_item {
   padding: 5px 10px;
   cursor: pointer;
 }
+.custom_select_modal_item:hover {
+  background-color: rgb(157, 157, 241, 0.8);
+}
 
-.custom_select_input{
+.custom_select_modal_item_active {
+  background-color: rgba(153, 153, 167, 0.8);
+}
+
+input{
   padding-left: 25px;
-  background: url("https://static.thenounproject.com/png/101791-200.png") no-repeat left;
+  background: url('data:image/svg+xml,\00003csvg focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">\00003cpath fill="rgba(0,0,0,.54)" d="M16.59 8.59L12 13.17 7.41 8.59 6 10l6 6 6-6z">\00003c/path>\00003c/svg>');
   background-size: 20px;
+  background-repeat: no-repeat;
+  background-position: calc(100% - 5px);
 }

@@ -2,94 +2,181 @@ import React, { useState, useEffect } from 'react'
 import styles from './styles.module.css'
 
 const CustomSelect = (props) => {
-  const [isSelectOpen, setIsSelectOpen] = useState(false)
-  const [value, setValue] = useState(props.input)
-  const [searchText, setSearchText] = useState('')
-  const options = ['Tinu', 'Anu', 'Gaadha']
-  useEffect(() => {
-    setValue(options[0].label)
-  }, [])
+  const [value, setValue] = useState({})
+  const [filteredResults, setFilteredResults] = useState(props.options)
+  const [isDisabled, setIsDisabled] = useState(false)
+  const [isClearable, setClearable] = useState(true)
+
+  const Checkbox = ({ children, ...props }) => (
+    <label style={{ marginRight: '1em' }}>
+      <input type='checkbox' {...props} />
+      {children}
+    </label>
+  )
   const buttonClicked = () => {
-    setIsSelectOpen(!isSelectOpen)
+    props.setIsSelectOpen(!props.isSelectOpen)
   }
-  const dropDownClose = (index) => {
-    setValue(index)
-    setIsSelectOpen(false)
+  const dropDownClose = (val) => {
+    console.log('value', val)
+    setValue(val)
+    props.setSearchText('')
+    props.setIsSelectOpen(false)
   }
-  const handleSearchChange = (e) => {
-    // if (options.includes(e.target.value)) {
-    //   console.log(true)
-    setSearchText(e.target.value)
-    // }
+  const clearSelect = () => {
+    setValue('')
   }
   const handleKeyDown = (e) => {
-    if (e.key === 'ArrowUp') {
-      e.preventDefault()
-      setValue(value - 1 >= 0 ? value - 1 : options.length - 1)
-    }
+    const index = props.options.findIndex((d) => d.id === value.id)
     if (e.key === 'ArrowDown') {
-      e.preventDefault()
-      setValue(value === options.length - 1 ? 0 : value + 1)
+      if (index === -1 || index === props.options.length - 1) {
+        setValue(props.options[0])
+      } else if (index < props.options.length - 1) {
+        setValue(props.options[index + 1])
+      }
+    }
+    if (e.key === 'ArrowUp') {
+      if (index >= 1) {
+        setValue(props.options[index - 1])
+      } else if (index === 0) {
+        setValue(props.options[props.options.length - 1])
+      }
+    }
+    if (e.key === 'Enter') {
+      props.setIsSelectOpen(false)
     }
   }
+  const mouseDownClick = (e) => {
+    console.log('clicked', e)
+    if (e.type === 'mousedown') {
+      setTimeout(() => {
+        props.setIsSelectOpen(false)
+      }, 1000)
+    }
+  }
+
   useEffect(() => {
-    options.filter((d) => {
-      if (props.input === '') {
-        return d
-      } else {
-        return d.toLowerCase().includes(props.input)
-      }
-    })
-  }, [])
+    document.addEventListener('click', mouseDownClick)
+    return () => {
+      document.removeEventListener('click', mouseDownClick)
+    }
+  })
   useEffect(() => {
-    setSearchText(options[value])
+    console.log(value)
   }, [value])
   useEffect(() => {
-    document.addEventListener('keydown', handleKeyDown)
-    return () => {
-      document.removeEventListener('keydown', handleKeyDown)
+    if (props.searchText) {
+      const filteredData = props.options.filter((item) => {
+        return Object.values(item)
+          .join('')
+          .toLowerCase()
+          .includes(props.searchText.toLowerCase())
+      })
+      setFilteredResults(filteredData)
+    } else {
+      setFilteredResults(props.options)
     }
-  }, [])
+  }, [props.searchText])
+
+  useEffect(() => {
+    props.setSearchText(undefined)
+  }, [value])
+
   return (
     <div>
       <div className={styles.custom_select_container}>
-        <input
-          type='search'
-          className={styles.custom_select_input}
-          placeholder='SEARCH...'
-          onChange={handleSearchChange}
-          value={searchText}
-          onClick={buttonClicked}
-        />
-        {isSelectOpen ? (
+        {props.isSearchable ? (
+          <React.Fragment>
+            <input
+              type='text'
+              className={props.isSelectOpen ? styles.expanded : ''}
+              placeholder={props.placeholder}
+              onChange={(e) => props.onChange(e.target.value)}
+              value={
+                props.searchText || props.searchText === ''
+                  ? props.searchText
+                  : value.label
+                  ? value.label
+                  : ''
+              }
+              disabled={isDisabled}
+              onClick={props.onClick}
+              onKeyDown={handleKeyDown}
+              // onBlur={() => setSearchText(undefined)}
+            />
+            {value && isClearable ? (
+              <span
+                className={styles.custom_select_clear}
+                onClick={clearSelect}
+              >
+                &#x2715;
+              </span>
+            ) : (
+              ''
+            )}
+          </React.Fragment>
+        ) : (
+          <button onClick={buttonClicked} onKeyDown={handleKeyDown}>
+            {value.label}
+          </button>
+        )}
+
+        {props.isSelectOpen ? (
           <div
-            className={styles.custom_select_modal}
+            className={`${styles.custom_select_modal} ${
+              props.isSelectOpen ? 'show' : ''
+            }`}
             role='listbox'
-            aria-activedescendant={options[value]}
             tabIndex={-1}
+            aria-activedescendant={value.label}
           >
-            {options.map((option, index) => (
-              <div key={`select_${index}`}>
+            {filteredResults.map((option, index) => {
+              return (
                 <div
-                  className={styles.custom_select_modal_item}
-                  id={option}
-                  role='option'
-                  aria-selected={value === index}
-                  tabIndex={0}
-                  onKeyDown={handleKeyDown}
-                  onClick={() => {
-                    dropDownClose(index)
-                  }}
+                  key={`select_${index}`}
+                  className={
+                    option.id === value.id
+                      ? styles.custom_select_modal_item_active
+                      : ''
+                  }
                 >
-                  {option}
+                  <div
+                    className={styles.custom_select_modal_item}
+                    id={option.id}
+                    role='option'
+                    aria-selected={value === index}
+                    tabIndex={0}
+                    onClick={() => {
+                      dropDownClose(option)
+                    }}
+                  >
+                    {option.label}
+                  </div>
                 </div>
-              </div>
-            ))}
+              )
+            })}
           </div>
         ) : (
           ''
         )}
       </div>
+      <Checkbox
+        checked={props.isSearchable}
+        onChange={() => props.setIsSearchable((state) => !state)}
+      >
+        Searchable
+      </Checkbox>
+      <Checkbox
+        checked={isDisabled}
+        onChange={() => setIsDisabled((state) => !state)}
+      >
+        Disabled
+      </Checkbox>
+      <Checkbox
+        checked={isClearable}
+        onChange={() => setClearable((state) => !state)}
+      >
+        Clearable
+      </Checkbox>
     </div>
   )
 }
